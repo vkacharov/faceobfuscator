@@ -12,8 +12,8 @@ permissions:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    environment: prod
+    runs-on: macos-latest
 
     steps:
     - name: Checkout Code
@@ -40,7 +40,7 @@ jobs:
       run: |
         pyinstaller --clean main.spec
         mkdir output
-        mv dist/face_obfuscator* output/
+        mv dist/face_obfuscator output/
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
