@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     environment: prod
-    runs-on: macos-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout Code
@@ -35,15 +35,12 @@ jobs:
         echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
         echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
         echo "AWS_DEFAULT_REGION=us-east-1" >> .env
-        echo "${{ secrets.prod.TEST_AWS_DEFAULT_REGION }}"
-        echo "${{ secrets.TEST_AWS_DEFAULT_REGION }}"
-        echo "${{ env.TEST_AWS_DEFAULT_REGION }}"
 
     - name: Build Executable
       run: |
         pyinstaller --clean main.spec
         mkdir output
-        mv dist/face_obfuscator output/
+        mv dist/face_obfuscator.exe output/
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
