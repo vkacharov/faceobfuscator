@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Code
@@ -30,11 +30,17 @@ jobs:
         pip install pyinstaller
         pip install -r requirements.txt
 
+    - name: Create dotenv
+      run: |
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" > .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" > .env
+        echo "AWS_DEFAULT_REGION=us-east-1" > .env
+
     - name: Build Executable
       run: |
         pyinstaller --clean main.spec
         mkdir output
-        mv dist/main.exe output/
+        mv dist/face_obfuscator* output/
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
