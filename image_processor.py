@@ -1,10 +1,12 @@
 from PIL import Image, ImageDraw
 import io
 import os
+import boto3
 
 class ImageProcessor:
-    def __init__(self, rekognition_client, image_file, output_directory):
-        self.rekognition_client = rekognition_client
+    rekognition_client = boto3.client("rekognition", region_name="us-east-1")
+
+    def __init__(self, image_file, output_directory):
         self.image_file = image_file
         self.output_directory = output_directory
 
@@ -17,8 +19,8 @@ class ImageProcessor:
             draw = ImageDraw.Draw(image)
 
             for face in faces:
-                highAgeRange = face["AgeRange"]["High"]
-                if (highAgeRange < 18):
+                low_age_range = face["AgeRange"]["Low"]
+                if (low_age_range <= 18):
                     rectangle = self.__calculate_face_rectangle(image.size, face)
                     draw.rectangle(rectangle, fill="yellow")
 
@@ -28,7 +30,7 @@ class ImageProcessor:
             return fixed_image_name
 
     def __detect_faces(self, image):
-        response = self.rekognition_client.detect_faces(
+        response = ImageProcessor.rekognition_client.detect_faces(
             Image={"Bytes" : image}, Attributes=["AGE_RANGE"]
         )
         faces = [face for face in response["FaceDetails"]]

@@ -3,17 +3,16 @@ import concurrent.futures
 from image_processor import ImageProcessor
 
 class DirectoryProcessor:
-    def __init__(self, directory, output_directory, rekognition_client):
+    def __init__(self, directory, output_directory):
         self.directory = directory
         self.output_directory = output_directory
-        self.rekognition_client = rekognition_client
 
     def process_directory(self):
         images = DirectoryProcessor.get_image_files_in_directory(self.directory)
         processed_images = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            futures_to_params = {executor.submit(ImageProcessor(self.rekognition_client, image, self.output_directory).obfuscate_image) : image for image in images}
+            futures_to_params = {executor.submit(ImageProcessor(image, self.output_directory).obfuscate_image) : image for image in images}
 
             for future in concurrent.futures.as_completed(futures_to_params):
                 image = futures_to_params[future]

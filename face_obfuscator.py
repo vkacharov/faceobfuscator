@@ -4,9 +4,7 @@ from directory_processor import DirectoryProcessor
 from utils import load_file_path
 
 class FaceObfuscator:
-    def __init__(self, rekognition_client):
-        self.rekognition_client = rekognition_client
-
+    def __init__(self):
         self.root = tk.Tk()
         self.root.title("Face Obfuscator")
         self.root.geometry("400x375")
@@ -52,7 +50,7 @@ class FaceObfuscator:
     def __process_directory(self):
         if (len(self.selected_directory) > 0 and len(self.output_directory) > 0):
             self.processed_images.set("Снимките се обработват ...")
-            pi = DirectoryProcessor(self.selected_directory, self.output_directory, self.rekognition_client).process_directory()
+            pi = DirectoryProcessor(self.selected_directory, self.output_directory).process_directory()
 
             if (len(pi) > 0):
                 self.processed_images.set(f"{len(pi)} снимки бяха обработени и записани в {self.output_directory}")
@@ -76,7 +74,7 @@ class FaceObfuscator:
             self.output_directory_label.set(f"Обработените снимки ще се запишат в {self.output_directory}")
 
     @staticmethod
-    def main(rekognition_client):
+    def main():
         """Entry point for the application."""
-        app = FaceObfuscator(rekognition_client)
+        app = FaceObfuscator()
         app.root.mainloop()
