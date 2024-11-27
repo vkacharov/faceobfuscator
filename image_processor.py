@@ -2,14 +2,19 @@ from PIL import Image
 import io
 import os
 import boto3
+from utils import load_file_path
 
 class ImageProcessor:
-    rekognition_client = boto3.client("rekognition", region_name="us-east-1")
+    rekognition_client = None
 
+    @classmethod
+    def initialize(cls):
+        cls.rekognition_client = boto3.client("rekognition")
+    
     def __init__(self, image_file, output_directory):
         self.image_file = image_file
         self.output_directory = output_directory
-        self.bear_image = Image.open("bear.png")
+        self.bear_image = Image.open(load_file_path("bear.png"))
 
     def obfuscate_image(self):
         with open(self.image_file, "rb") as image_file:

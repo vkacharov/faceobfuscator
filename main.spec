@@ -8,7 +8,8 @@ a = Analysis(
     datas=[
         ('.env', '.'),
         ('directory.png', '.'),
-        ('favicon.ico', '.')
+        ('favicon.ico', '.'),
+        ('bear.png', '.')
     ],
     hiddenimports=['dotenv', 's3transfer', 'botocore', 'PIL', 'pip', 'jmespath', 'urllib3', 'dateutil', 'boto3'],
     hookspath=[],
