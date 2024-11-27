@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw
+from PIL import Image
 import io
 import os
 import boto3
@@ -9,6 +9,7 @@ class ImageProcessor:
     def __init__(self, image_file, output_directory):
         self.image_file = image_file
         self.output_directory = output_directory
+        self.bear_image = Image.open("bear.png")
 
     def obfuscate_image(self):
         with open(self.image_file, "rb") as image_file:
@@ -16,13 +17,13 @@ class ImageProcessor:
             faces = self.__detect_faces(image_bytes)
 
             image = Image.open(io.BytesIO(image_bytes))
-            draw = ImageDraw.Draw(image)
 
             for face in faces:
                 low_age_range = face["AgeRange"]["Low"]
                 if (low_age_range <= 18):
-                    rectangle = self.__calculate_face_rectangle(image.size, face)
-                    draw.rectangle(rectangle, fill="yellow")
+                    width, height, left, top = self.__calculate_face_rectangle(image.size, face)
+                    resized_bear = self.bear_image.resize((int(width), int(height)))
+                    image.paste(resized_bear, (int(left), int(top)))
 
             file_name = os.path.basename(self.image_file)
             fixed_image_name = self.output_directory + "/fixed-" + file_name
@@ -43,8 +44,7 @@ class ImageProcessor:
             rl = face["BoundingBox"]["Left"]
             rt = face["BoundingBox"]["Top"]
             width, height, left, top = self.__calculate_rectangle(image_width, image_height, rw, rh, rl, rt)
-            rectangle = [left, top, left + width, top + height]
-            return rectangle
+            return (width, height, left, top)
     
     def __calculate_rectangle(self, image_width, image_height, relative_width, relative_height, relative_left, relative_top):
         relative_width = image_width * relative_width
