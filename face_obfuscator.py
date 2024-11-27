@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import filedialog
 from directory_processor import DirectoryProcessor
 from utils import load_file_path
+import os
+import subprocess
 
 class FaceObfuscator:
     def __init__(self):
@@ -29,8 +31,8 @@ class FaceObfuscator:
         self.select_button = tk.Button(self.root, image=self.directory_icon, command=self.__select_directory, pady=5, borderwidth=0)
         self.select_button.grid(row=0, column=1)
 
-        self.directory_label = tk.Label(self.root, textvariable=self.selected_directory_label, fg="blue", pady=10, wraplength=350)
-        self.directory_label.grid(row=1, column=0, columnspan=2, pady=10, sticky="w")
+        self.directory_label = tk.Label(self.root, textvariable=self.selected_directory_label, fg="blue", pady=7, wraplength=350)
+        self.directory_label.grid(row=1, column=0, columnspan=2, pady=7, sticky="w")
 
         self.output_instruction_label = tk.Label(self.root, text="Изберете директория за обработените снимки")
         self.output_instruction_label.grid(row=2, column=0)
@@ -38,23 +40,34 @@ class FaceObfuscator:
         self.output_select_button = tk.Button(self.root,image=self.directory_icon,  command=self.__select_output_directory, pady=5)
         self.output_select_button.grid(row=2, column=1)
 
-        self.output_label = tk.Label(self.root, textvariable=self.output_directory_label, fg="blue", pady=10,  wraplength=350)
-        self.output_label.grid(row=3, column=0, columnspan=2, pady=10, sticky="w")
+        self.output_label = tk.Label(self.root, textvariable=self.output_directory_label, fg="blue", pady=7,  wraplength=350)
+        self.output_label.grid(row=3, column=0, columnspan=2, pady=7, sticky="w")
 
         self.process_button = tk.Button(self.root, text="Обработване на снимките", command=self.__process_directory, pady=5)
-        self.process_button.grid(row=4, column=0, columnspan=2, pady=10, sticky="we")
+        self.process_button.grid(row=4, column=0, columnspan=2, pady=7, sticky="we")
 
-        self.processed_label = tk.Label(self.root, textvariable=self.processed_images, fg="blue", pady=10, wraplength=350)
-        self.processed_label.grid(row=5, column=0, columnspan=2, pady=10, sticky="we")
+        self.processed_label = tk.Label(self.root, textvariable=self.processed_images, fg="blue", pady=7, wraplength=350)
+        self.processed_label.grid(row=5, column=0, columnspan=2, pady=7, sticky="we")
+
+        self.open_output_label = tk.Label(self.root, text="", fg="purple", cursor="hand", pady=5, font=("Arial", 10, "underline"))
+        self.open_output_label.grid(row=6, column=0, columnspan=2, pady=7)
+        self.open_output_label.bind("<Button-1>", lambda e: self.__open_folder())
+
+    def __open_folder(self):
+        if self.output_directory:
+        # Open the folder in the OS's file explorer
+            if os.name == "nt":  # Windows
+                os.startfile(folder_path)
+            elif os.name == "posix":  # macOS/Linux
+                subprocess.run(["open", self.output_directory])
 
     def __process_directory(self):
         if (len(self.selected_directory) > 0 and len(self.output_directory) > 0):
             self.processed_images.set("Снимките се обработват ...")
             pi = DirectoryProcessor(self.selected_directory, self.output_directory).process_directory()
+            self.processed_images.set(f"{len(pi)} снимки бяха обработени и записани в {self.output_directory}")
 
-            if (len(pi) > 0):
-                self.processed_images.set(f"{len(pi)} снимки бяха обработени и записани в {self.output_directory}")
-
+            self.open_output_label.config(text="Виж")
             self.selected_directory = ""
             self.selected_directory_label.set("")
             self.output_directory_label.set("")
