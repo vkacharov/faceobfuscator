@@ -9,7 +9,7 @@ class FaceObfuscator:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Face Obfuscator")
-        self.root.geometry("400x375")
+        self.root.geometry("620x500")
         self.root.iconbitmap(load_file_path("favicon.ico"))
 
         self.selected_directory = ""
@@ -23,34 +23,43 @@ class FaceObfuscator:
 
         self.processed_images = tk.StringVar()
 
+        intro = """
+        Това приложение автоматично закрива лицата на лица под 18 години.
+        Приложението работи със снимки в .png, .jpg и .jpeg формат.
+        Изберете директорията със снимките, които искате да закриете.
+        След това изберете директорията, в която да ще се запазят обработените снимки. 
+        """
+        self.intro_label = tk.Label(self.root, text=intro, fg="blue", pady=7, wraplength=600)
+        self.intro_label.grid(row=0, column=0, columnspan=2, pady=7, sticky="we")
+
         self.instruction_label = tk.Label(self.root, text="Изберете директория с необработени снимки")
-        self.instruction_label.grid(row=0, column=0)
+        self.instruction_label.grid(row=1, column=0)
 
         self.directory_icon = tk.PhotoImage(file=load_file_path("directory.png"))
 
         self.select_button = tk.Button(self.root, image=self.directory_icon, command=self.__select_directory, pady=5, borderwidth=0)
-        self.select_button.grid(row=0, column=1)
+        self.select_button.grid(row=1, column=1, sticky="e")
 
-        self.directory_label = tk.Label(self.root, textvariable=self.selected_directory_label, fg="blue", pady=7, wraplength=350)
-        self.directory_label.grid(row=1, column=0, columnspan=2, pady=7, sticky="w")
+        self.directory_label = tk.Label(self.root, textvariable=self.selected_directory_label, fg="blue", pady=7, wraplength=600)
+        self.directory_label.grid(row=2, column=0, columnspan=2, pady=7, sticky="we")
 
         self.output_instruction_label = tk.Label(self.root, text="Изберете директория за обработените снимки")
-        self.output_instruction_label.grid(row=2, column=0)
+        self.output_instruction_label.grid(row=3, column=0)
 
         self.output_select_button = tk.Button(self.root,image=self.directory_icon,  command=self.__select_output_directory, pady=5)
-        self.output_select_button.grid(row=2, column=1)
+        self.output_select_button.grid(row=3, column=1, sticky="e")
 
-        self.output_label = tk.Label(self.root, textvariable=self.output_directory_label, fg="blue", pady=7,  wraplength=350)
-        self.output_label.grid(row=3, column=0, columnspan=2, pady=7, sticky="w")
+        self.output_label = tk.Label(self.root, textvariable=self.output_directory_label, fg="blue", pady=7,  wraplength=600)
+        self.output_label.grid(row=4, column=0, columnspan=2, pady=7, sticky="we")
 
         self.process_button = tk.Button(self.root, text="Обработване на снимките", command=self.__process_directory, pady=5)
-        self.process_button.grid(row=4, column=0, columnspan=2, pady=7, sticky="we")
+        self.process_button.grid(row=5, column=0, columnspan=2, pady=7, sticky="we")
 
-        self.processed_label = tk.Label(self.root, textvariable=self.processed_images, fg="blue", pady=7, wraplength=350)
-        self.processed_label.grid(row=5, column=0, columnspan=2, pady=7, sticky="we")
+        self.processed_label = tk.Label(self.root, textvariable=self.processed_images, fg="blue", pady=7, wraplength=600)
+        self.processed_label.grid(row=6, column=0, columnspan=2, pady=7, sticky="we")
 
         self.open_output_label = tk.Label(self.root, text="", fg="purple", cursor="hand", pady=5, font=("Arial", 10, "underline"))
-        self.open_output_label.grid(row=6, column=0, columnspan=2, pady=7)
+        self.open_output_label.grid(row=7, column=0, columnspan=2, pady=7)
         self.open_output_label.bind("<Button-1>", lambda e: self.__open_folder())
 
     def __open_folder(self):
