@@ -11,7 +11,7 @@ class DirectoryProcessor:
         images = DirectoryProcessor.get_image_files_in_directory(self.directory)
         processed_images = []
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             futures_to_params = {executor.submit(ImageProcessor(image, self.output_directory).obfuscate_image) : image for image in images}
 
             for future in concurrent.futures.as_completed(futures_to_params):

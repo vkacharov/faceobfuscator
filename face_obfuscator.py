@@ -66,7 +66,7 @@ class FaceObfuscator:
         if self.output_directory:
         # Open the folder in the OS's file explorer
             if os.name == "nt":  # Windows
-                os.startfile(folder_path)
+                os.startfile(self.output_directory)
             elif os.name == "posix":  # macOS/Linux
                 subprocess.run(["open", self.output_directory])
 
