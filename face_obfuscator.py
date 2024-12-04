@@ -58,7 +58,7 @@ class FaceObfuscator:
         self.processed_label = tk.Label(self.root, textvariable=self.processed_images, fg="blue", pady=7, wraplength=600)
         self.processed_label.grid(row=6, column=0, columnspan=2, pady=7, sticky="we")
 
-        self.open_output_label = tk.Label(self.root, text="", fg="purple", cursor="hand", pady=5, font=("Arial", 10, "underline"))
+        self.open_output_label = tk.Label(self.root, text="", fg="purple", pady=5, font=("Arial", 10, "underline"))
         self.open_output_label.grid(row=7, column=0, columnspan=2, pady=7)
         self.open_output_label.bind("<Button-1>", lambda e: self.__open_folder())
 
