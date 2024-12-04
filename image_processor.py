@@ -31,9 +31,13 @@ class ImageProcessor:
                     image.paste(resized_bear, (int(left), int(top)), mask=resized_bear)
 
             file_name = os.path.basename(self.image_file)
-            fixed_image_name = self.output_directory + "/fixed-" + file_name
+            fixed_image_name = self.output_directory + "/" + self.__generate_fixed_file_name(file_name)
             image.save(fixed_image_name)
             return fixed_image_name
+
+    def __generate_fixed_file_name(self, file_name):
+        name, ext = os.path.splitext(file_name)
+        return f"{name}-fixed{ext}"
 
     def __detect_faces(self, image):
         response = ImageProcessor.rekognition_client.detect_faces(
