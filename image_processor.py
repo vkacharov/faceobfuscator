@@ -14,7 +14,7 @@ class ImageProcessor:
     def __init__(self, image_file, output_directory):
         self.image_file = image_file
         self.output_directory = output_directory
-        self.bear_image = Image.open(load_file_path("bear.png"))
+        self.bear_image = Image.open(load_file_path("bear.png")).convert("RGBA")
 
     def obfuscate_image(self):
         with open(self.image_file, "rb") as image_file:
@@ -28,7 +28,7 @@ class ImageProcessor:
                 if (low_age_range <= 18):
                     width, height, left, top = self.__calculate_face_rectangle(image.size, face)
                     resized_bear = self.bear_image.resize((int(width), int(height)))
-                    image.paste(resized_bear, (int(left), int(top)))
+                    image.paste(resized_bear, (int(left), int(top)), mask=resized_bear)
 
             file_name = os.path.basename(self.image_file)
             fixed_image_name = self.output_directory + "/fixed-" + file_name
