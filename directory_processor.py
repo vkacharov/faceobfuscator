@@ -10,6 +10,7 @@ class DirectoryProcessor:
     def process_directory(self):
         images = DirectoryProcessor.get_image_files_in_directory(self.directory)
         processed_images = []
+        exceptions = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             futures_to_params = {executor.submit(ImageProcessor(image, self.output_directory).obfuscate_image) : image for image in images}
@@ -20,8 +21,8 @@ class DirectoryProcessor:
                     fixed_file_name = future.result()
                     processed_images.append(fixed_file_name)
                 except Exception as exc:
-                    print(f"An error occurred with {image}: {exc}")
-        return processed_images
+                    exceptions.append(f"An error occurred with {image}: {exc}")
+        return (exceptions, processed_images)
 
     @staticmethod
     def get_image_files_in_directory(directory):

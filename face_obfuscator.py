@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 from directory_processor import DirectoryProcessor
 from utils import load_file_path
 import os
@@ -73,10 +74,17 @@ class FaceObfuscator:
     def __process_directory(self):
         if (len(self.selected_directory) > 0 and len(self.output_directory) > 0):
             self.processed_images.set("Снимките се обработват ...")
-            pi = DirectoryProcessor(self.selected_directory, self.output_directory).process_directory()
-            self.processed_images.set(f"{len(pi)} снимки бяха обработени и записани в {self.output_directory}")
+            try:
+                exceptions, processed_images = DirectoryProcessor(self.selected_directory, self.output_directory).process_directory()
+                self.processed_images.set(f"{len(processed_images)} снимки бяха обработени и записани в {self.output_directory}")
+                self.open_output_label.config(text="Виж")
 
-            self.open_output_label.config(text="Виж")
+                if (len(exceptions) > 0):
+                    error_text = "\n".join(exceptions)
+                    messagebox.showerror(title="Възникна гешка", message=f"{error_text}", icon=messagebox.ERROR)
+            except Exception as e:
+                messagebox.showerror(title="Възникна гешка", message=f"{e}", icon=messagebox.ERROR)
+
             self.selected_directory = ""
             self.selected_directory_label.set("")
             self.output_directory_label.set("")
