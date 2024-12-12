@@ -9,7 +9,12 @@ class ImageProcessor:
 
     @classmethod
     def initialize(cls):
-        cls.rekognition_client = boto3.client("rekognition")
+        cls.rekognition_client = boto3.client(
+            "rekognition", 
+            aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name = os.getenv("AWS_DEFAULT_REGION")
+            )
     
     def __init__(self, image_file, output_directory):
         self.image_file = image_file
@@ -21,7 +26,8 @@ class ImageProcessor:
             image_bytes = image_file.read()
             faces = self.__detect_faces(image_bytes)
 
-            image = Image.open(io.BytesIO(image_bytes))
+            raw_image = Image.open(io.BytesIO(image_bytes))
+            image = self.__rotate_image(raw_image)
 
             for face in faces:
                 low_age_range = face["AgeRange"]["Low"]
@@ -61,3 +67,23 @@ class ImageProcessor:
         rectangle_left = image_width * relative_left
         rectangle_top = image_height * relative_top
         return (relative_width, rectangle_height, rectangle_left, rectangle_top)
+    
+    def __rotate_image(self, image):
+        rotated_image = image
+        exif_data = image._getexif()
+        try:
+            exif_data = image._getexif()
+            if exif_data:
+                # Look for the Orientation tag (key 274 in EXIF data)
+                for tag, value in exif_data.items():
+                    if tag == 274: 
+                        if value == 3:
+                            rotated_image = image.rotate(180, expand=True)
+                        elif value == 6:
+                            rotated_image = image.rotate(270, expand=True)
+                        elif value == 8:
+                            rotated_image = image.rotate(90, expand=True)
+                        break
+            return rotated_image
+        except (AttributeError, KeyError, IndexError):
+            pass

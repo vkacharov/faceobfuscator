@@ -27,13 +27,13 @@ class FaceObfuscator:
         intro = """
         Това приложение автоматично закрива лицата на лица под 18 години.
         Приложението работи със снимки в .png, .jpg и .jpeg формат.
-        Изберете директорията със снимките, които искате да закриете.
-        След това изберете директорията, в която да ще се запазят обработените снимки. 
+        Изберете папката със снимките, които искате да закриете.
+        След това изберете паката, в която да ще се запазят обработените снимки. 
         """
         self.intro_label = tk.Label(self.root, text=intro, fg="blue", pady=7, wraplength=600)
         self.intro_label.grid(row=0, column=0, columnspan=2, pady=7, sticky="we")
 
-        self.instruction_label = tk.Label(self.root, text="Изберете директория с необработени снимки")
+        self.instruction_label = tk.Label(self.root, text="Изберете папката с необработени снимки")
         self.instruction_label.grid(row=1, column=0)
 
         self.directory_icon = tk.PhotoImage(file=load_file_path("directory.png"))
@@ -44,7 +44,7 @@ class FaceObfuscator:
         self.directory_label = tk.Label(self.root, textvariable=self.selected_directory_label, fg="blue", pady=7, wraplength=600)
         self.directory_label.grid(row=2, column=0, columnspan=2, pady=7, sticky="we")
 
-        self.output_instruction_label = tk.Label(self.root, text="Изберете директория за обработените снимки")
+        self.output_instruction_label = tk.Label(self.root, text="Изберете папка за обработените снимки")
         self.output_instruction_label.grid(row=3, column=0)
 
         self.output_select_button = tk.Button(self.root,image=self.directory_icon,  command=self.__select_output_directory, pady=5)
@@ -94,14 +94,14 @@ class FaceObfuscator:
         if dir:
             self.selected_directory = dir
             number_of_images = len(DirectoryProcessor.get_image_files_in_directory(self.selected_directory))
-            self.selected_directory_label.set(f"{number_of_images} снимки в директория {self.selected_directory}")
+            self.selected_directory_label.set(f"{number_of_images} снимки в папката {self.selected_directory}")
             self.processed_images.set("")
 
     def __select_output_directory(self):
         dir = filedialog.askdirectory()
         if dir:
             self.output_directory = dir
-            self.output_directory_label.set(f"Обработените снимки ще се запишат в {self.output_directory}")
+            self.output_directory_label.set(f"Обработените снимки ще се запишат в папката {self.output_directory}")
 
     @staticmethod
     def main():
