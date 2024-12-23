@@ -5,6 +5,7 @@ from directory_processor import DirectoryProcessor
 from utils import load_file_path
 import os
 import subprocess
+from threading import Thread
 
 class FaceObfuscator:
     def __init__(self):
@@ -21,8 +22,11 @@ class FaceObfuscator:
         self.output_directory_label.set("")
 
         self.output_directory = ""
-
         self.processed_images = tk.StringVar()
+
+        self.exceptions_output = None
+        self.processed_images_output = None
+        self.global_processing_exception_output = None
 
         intro = """
         Това приложение автоматично закрива лицата на лица под 18 години.
@@ -53,7 +57,7 @@ class FaceObfuscator:
         self.output_label = tk.Label(self.root, textvariable=self.output_directory_label, fg="blue", pady=7,  wraplength=600)
         self.output_label.grid(row=4, column=0, columnspan=2, pady=7, sticky="we")
 
-        self.process_button = tk.Button(self.root, text="Обработване на снимките", command=self.__process_directory, pady=5)
+        self.process_button = tk.Button(self.root, text="Обработване на снимките", command=self.__process_button_click, pady=5)
         self.process_button.grid(row=5, column=0, columnspan=2, pady=7, sticky="we")
 
         self.processed_label = tk.Label(self.root, textvariable=self.processed_images, fg="blue", pady=7, wraplength=600)
@@ -71,23 +75,49 @@ class FaceObfuscator:
             elif os.name == "posix":  # macOS/Linux
                 subprocess.run(["open", self.output_directory])
 
-    def __process_directory(self):
+    def __process_button_click(self):
         if (len(self.selected_directory) > 0 and len(self.output_directory) > 0):
-            self.processed_images.set("Снимките се обработват ...")
+            self.processed_images.set('Снимките се обработват ...')
+            self.process_button.config(state='disabled')
+            t = Thread(target=self.__process_directory, daemon=True)
+            t.start()
+            self.__schedule_processing_check(t)
+
+    def __schedule_processing_check(self, t):
+        # Check every 500ms is the images are still processing
+        self.root.after(500, self.__check_if_processing, t)
+
+    def __check_if_processing(self, t):
+        if not t.is_alive():
+            self.__update_ui_after_processing()
+
+        else:
+            self.__schedule_processing_check(t)
+
+    def __update_ui_after_processing(self):
+        self.processed_images.set(f"{len(self.processed_images_output)} снимки бяха обработени и записани в {self.output_directory}")
+        self.open_output_label.config(text='Виж')
+        if (len(self.exceptions_output) > 0):
+            delimiter = '\n' + ('-' * 8) + '\n'
+            error_text = delimiter.join(self.exceptions_output)
+            messagebox.showerror(title='Възникна гешка', message=f"{error_text}", icon=messagebox.ERROR)
+
+        if (self.global_processing_exception_output is not None):
+            messagebox.showerror(title='Възникна гешка', message=f"{self.global_processing_exception_output}", icon=messagebox.ERROR)
+        self.selected_directory = ''
+        self.selected_directory_label.set('')
+        self.output_directory_label.set('')
+        self.processed_images_output = None
+        self.exceptions_output = None
+        self.global_processing_exception_output = None
+        self.process_button.config(state='normal')
+
+
+    def __process_directory(self):     
             try:
-                exceptions, processed_images = DirectoryProcessor(self.selected_directory, self.output_directory).process_directory()
-                self.processed_images.set(f"{len(processed_images)} снимки бяха обработени и записани в {self.output_directory}")
-                self.open_output_label.config(text="Виж")
-
-                if (len(exceptions) > 0):
-                    error_text = "\n".join(exceptions)
-                    messagebox.showerror(title="Възникна гешка", message=f"{error_text}", icon=messagebox.ERROR)
+                self.exceptions_output, self.processed_images_output = DirectoryProcessor(self.selected_directory, self.output_directory).process_directory()
             except Exception as e:
-                messagebox.showerror(title="Възникна гешка", message=f"{e}", icon=messagebox.ERROR)
-
-            self.selected_directory = ""
-            self.selected_directory_label.set("")
-            self.output_directory_label.set("")
+                self.global_processing_exception_output = e
 
     def __select_directory(self):
         dir = filedialog.askdirectory()
