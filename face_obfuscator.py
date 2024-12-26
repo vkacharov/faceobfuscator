@@ -90,7 +90,6 @@ class FaceObfuscator:
     def __check_if_processing(self, t):
         if not t.is_alive():
             self.__update_ui_after_processing()
-
         else:
             self.__schedule_processing_check(t)
 

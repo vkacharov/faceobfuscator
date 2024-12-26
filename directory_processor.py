@@ -2,6 +2,7 @@ import os
 import concurrent.futures
 from image_processor import ImageProcessor
 import traceback
+import time
 
 class DirectoryProcessor:
     def __init__(self, directory, output_directory):
@@ -9,17 +10,23 @@ class DirectoryProcessor:
         self.output_directory = output_directory
 
     def process_directory(self):
+        before = time.time()
         images = DirectoryProcessor.get_image_files_in_directory(self.directory)
         processed_images = []
         exceptions = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            futures_to_params = {executor.submit(ImageProcessor(image, self.output_directory).obfuscate_image) : image for image in images}
 
-        for image in images:
-            try:
-                fixed_file_name = ImageProcessor(image, self.output_directory).obfuscate_image()
-                processed_images.append(fixed_file_name)
-            except Exception as exc:
-                traceback.print_exc()
-                exceptions.append(f"An error occurred with {image}: {exc}")
+            for future in concurrent.futures.as_completed(futures_to_params):
+                image = futures_to_params[future]
+                try:
+                    fixed_file_name = future.result()
+                    processed_images.append(fixed_file_name)
+                except Exception as exc:
+                    traceback.print_exc()
+                    exceptions.append(f"An error occurred with {image}: {exc}")
+        after = time.time()
+        print(f"Processed {len(images)} images in {after - before} seconds")
         return (exceptions, processed_images)
 
     @staticmethod

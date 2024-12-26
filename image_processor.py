@@ -18,10 +18,11 @@ class ImageProcessor:
     def __init__(self, image_file, output_directory):
         self.image_file = image_file
         self.output_directory = output_directory
+        self.s3_uploader = S3Uploader()
 
     def obfuscate_image(self):
         s3_prefix = self.__base64_encode(self.output_directory)
-        object_name = S3Uploader().upload_file(s3_prefix, self.image_file)
+        object_name = self.s3_uploader.upload_file(s3_prefix, self.image_file)
         try:
             with open(self.image_file, "rb") as image_file_content:
                 image_bytes = image_file_content.read()
@@ -32,7 +33,7 @@ class ImageProcessor:
                 for face in faces:
                     low_age_range = face["AgeRange"]["Low"]
                     if (low_age_range <= 18):
-                        width, height, left, top = self.__calculate_face_rectangle(image.size, face)
+                        width, height, left, top = self.__calculate_face_square(image.size, face)
                         resized_bear = self.bear_image.resize((int(width), int(height)))
                         image.paste(resized_bear, (int(left), int(top)), mask=resized_bear)
 
@@ -61,21 +62,22 @@ class ImageProcessor:
         faces = [face for face in response["FaceDetails"]]
         return faces
     
-    def __calculate_face_rectangle(self, image_size, face):
+    def __calculate_face_square(self, image_size, face):
             image_width, image_height = image_size
             rw = face["BoundingBox"]["Width"]
             rh = face["BoundingBox"]["Height"]
             rl = face["BoundingBox"]["Left"]
             rt = face["BoundingBox"]["Top"]
             width, height, left, top = self.__calculate_rectangle(image_width, image_height, rw, rh, rl, rt)
-            return (width, height, left, top)
+            side = max(width, height) # turn the box into a square
+            return (side, side, left, top)
     
     def __calculate_rectangle(self, image_width, image_height, relative_width, relative_height, relative_left, relative_top):
-        relative_width = image_width * relative_width
+        rectangle_width = image_width * relative_width
         rectangle_height = image_height * relative_height
         rectangle_left = image_width * relative_left
         rectangle_top = image_height * relative_top
-        return (relative_width, rectangle_height, rectangle_left, rectangle_top)
+        return (rectangle_width, rectangle_height, rectangle_left, rectangle_top)
     
     def __rotate_image(self, image):
         rotated_image = image
