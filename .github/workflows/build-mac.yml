@@ -39,6 +39,7 @@ jobs:
 
     - name: Build Executable
       run: |
+        cat .env
         pyinstaller --clean main.spec
         mkdir output
         mv dist/face_obfuscator output/
