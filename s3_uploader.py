@@ -16,9 +16,6 @@ class S3Uploader:
 
     def upload_file(self, prefix, file_name):
         object_name = f"{prefix}/{os.path.basename(file_name)}"
-        print(f"Object name: {object_name} class {type(object_name)}")
-        print(f"Bucket name {self.bucket_name} class {type(self.bucket_name)}")
-        print(f"File name {file_name} class {type(file_name)}")
         self.s3_client.upload_file(file_name, self.bucket_name, object_name)
         return object_name
     
