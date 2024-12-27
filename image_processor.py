@@ -12,7 +12,12 @@ class ImageProcessor:
 
     @classmethod
     def initialize(cls):
-        cls.rekognition_client = boto3.client("rekognition")
+        cls.rekognition_client = boto3.client(
+            "rekognition", 
+            aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name = os.getenv("AWS_DEFAULT_REGION")
+        )
         cls.bear_image = Image.open(load_file_path("bear.png")).convert("RGBA")
     
     def __init__(self, image_file, output_directory):
